@@ -1,0 +1,2 @@
+export const TOGGLE_EXCHANGE = 'TOGGLE_EXCHANGE';
+export const CLEAR_STORAGE = 'CLEAR_STORAGE';

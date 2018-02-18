@@ -52,7 +52,7 @@ export default {
       this.exchange.loadingMarkets = true;
       const started = new Date();
       try {
-        await this.exchange.loadMarkets(true);
+        // await this.exchange.loadMarkets(true);
       } catch (e) {
         this.exchange.marketLoadError = e;
       }

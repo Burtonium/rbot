@@ -1,10 +1,11 @@
 <template>
   <div>
     <ul class="exchanges wrapper">
-      <li v-for="(enabled, id) in enabledExchanges" :key="id"  @click="toggleExchange(id)">
-        <span v-if="exchanges[id]" class="badge" :class="{'badge-success': enabled,
-                                     'badge-danger': !enabled}">
-          {{ exchanges[id].name }}
+      <li v-for="(e, index) in getExchangeStates" :key="index"
+          @click="toggleExchangeAndTestApi(e.id)">
+        <span class="badge"
+              :class="{'badge-success': e.enabled, 'badge-danger': !e.enabled}">
+          {{ e.name }}
         </span>
       </li>
     </ul>
@@ -14,35 +15,35 @@
         <tr>
             <th></th>
             <th>Name</th>
-            <th>Status</th>
+            <th>API Status</th>
             <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(exchange, key) in filteredExchanges" :key="key">
+        <tr v-for="(ex, key) in filteredExchanges" :key="key">
           <td>
-            <a :href="exchange.urls.www">
-              <img :src="exchange.urls.logo">
+            <a :href="ex.ccxt.urls.www">
+              <img :src="ex.ccxt.urls.logo">
             </a>
           </td>
           <td>
-            <a :href="exchange.urls.www">
-              {{ exchange.name }}
+            <a :href="ex.ccxt.urls.www">
+              {{ ex.name }}
             </a>
           </td>
-          <td v-if="!exchange.markets && !exchange.marketLoadError"
+          <td v-if="typeof delays[ex.id] === 'undefined' && !ex.error"
               class="text-warning">
             Loading...
           </td>
-          <td v-else-if="!exchange.marketLoadError && exchange.symbols"
-              class="text-success" :data-delay="exchange.apiDelay">
-            Online ({{ exchange.apiDelay }} ms)
+          <td v-else-if="typeof ex.error === 'undefined'"
+              class="text-success">
+            Online ({{ delays[ex.id] }} ms)
           </td>
-          <td v-else-if="exchange.marketLoadError">
-            <p class="text-danger">{{ exchange.marketLoadError.message }}</p>
+          <td v-else>
+            <p class="text-danger">{{ ex.error.message }}</p>
           </td>
           <td>
-            <router-link class="btn btn-primary" :to="'/exchanges/' + exchange.id">
+            <router-link class="btn btn-primary" :to="'/exchanges/' + ex.id">
               Settings
             </router-link>
           </td>
@@ -51,71 +52,62 @@
     </table>
   </div>
 </template>
+
 <script>
 import Vue from 'vue';
-import ccxt from 'ccxt';
+import { mapGetters, mapActions } from 'vuex';
+import { wait } from '@/utils';
 
-let enabled = null;
-try {
-  enabled = JSON.parse(localStorage.getItem('ARBBOT_ENABLED'));
-} catch (e) {
-  // ERROR
-}
-
-if (!enabled) {
-  enabled = {};
-  ccxt.exchanges.forEach((exchange) => {
-    enabled[exchange] = false;
-  });
-}
+import ExchangeManager from '@/models/ExchangeManager';
 
 export default {
   name: 'Home',
   data() {
     return {
-      exchangeNames: ccxt.exchanges,
-      exchanges: {},
-      enabledExchanges: enabled
+      manager: {},
+      delays: {}
     };
   },
   computed: {
+    ...mapGetters([
+      'getExchangeState',
+      'getExchangeStates',
+      'getFilteredExchangeIdList',
+      'getExchangeIdList',
+    ]),
     filteredExchanges() {
-      return Object.values(this.exchanges).filter(e => this.enabledExchanges[e.id]);
+      const xs = this.manager.exchanges || [];
+      return Object.values(xs).filter(e => e.state.enabled);
     }
   },
   methods: {
-    toggleExchange(id) {
-      this.enabledExchanges[id] = !this.enabledExchanges[id];
-
-      localStorage.setItem('ARBBOT_ENABLED', JSON.stringify(this.enabledExchanges));
-      this.loadMarket(this.exchanges[id]);
+    ...mapActions(['toggleExchange']),
+    toggleExchangeAndTestApi(id) {
+      this.toggleExchange({ id });
+      this.testApi(id);
     },
-    async loadMarket(exchange) {
-      if (!exchange.has.cors) {
-        exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
+    async testApi(exchangeId) {
+      const ex = this.manager.exchanges[exchangeId];
+      await ex.callApi('load_markets');
+      await wait(ex.ccxt.rateLimit);
+      if (!ex.markets) {
+        ex.error = new Error('Could not load market');
+        return;
       }
-      exchange.loadingMarkets = true;
-      const started = new Date();
-      try {
-        await exchange.loadMarkets(true);
-      } catch (e) {
-        exchange.marketLoadError = e;
+      const firstSymbol = Object.values(ex.markets)[0].symbol;
+      if (!firstSymbol) {
+        ex.error = new Error('Could not load symbols');
+        return;
       }
-      const ended = new Date();
-      exchange.apiDelay = ended - started;
+      const start = new Date();
+      await ex.callApi('fetch_ticker', firstSymbol);
+      Vue.set(this.delays, ex.id, new Date() - start);
       this.$forceUpdate();
-    },
-    loadMarkets() {
-      this.filteredExchanges.forEach(this.loadMarket);
     }
   },
   mounted() {
-    const exchanges = this.exchangeNames;
-    exchanges.forEach(async (exchange) => {
-      const ex = new ccxt[exchange]();
-      Vue.set(this.exchanges, exchange, ex);
-    });
-    this.loadMarkets();
+    this.manager = new ExchangeManager();
+    this.getFilteredExchangeIdList.forEach(this.testApi);
   }
 };
 </script>
