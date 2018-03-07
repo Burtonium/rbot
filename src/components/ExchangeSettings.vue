@@ -2,69 +2,114 @@
 <div class="wrapper">
   <div>
     <h1>{{ exchange.name }}</h1>
-    <p>{{ exchange }}</p>
-    <p v-if="!exchange.marketLoadError">Api delay time: {{ exchange.apiDelay }} ms</p>
-    <p v-else>Error: {{ exchange.marketLoadError.message }}</p>
-    <p>Countries: {{ countries ? countries.join(', ') : 'none'}}</p>
-    <div class="form-group" v-if="exchange.has && exchange.has.publicAPI">
-      <input class="input form-control" placeholder="Public API Key">
+    <p>Countries: {{ exchange.countries ? exchange.countries.join(', ') : 'none'}}</p>
+    <h3>Credentials</h3>
+    <div class="form-group"  v-if="exchange.requires.apiKey">
+      <label>API key</label>
+      <input class="input form-control" placeholder="API Key"
+             v-model="exchange.apiKey">
     </div>
-    <div class="form-group" v-if="exchange.has && exchange.has.privateAPI">
-      <input class="input form-control" placeholder="Private API Key" type="password">
+    <div class="form-group" v-if="exchange.requires.secret">
+      <label>Secret</label>
+      <input class="input form-control"
+             placeholder="Secret"
+             v-model="exchange.secret">
     </div>
-    <div class="form-group"
-         v-if="exchange.requiredCredentials && exchange.requiredCredentials.login">
-      <input class="input form-control" placeholder="Username">
+    <div class="form-group"  v-if="exchange.requires.login">
+      <label>Login</label>
+      <input class="input form-control" placeholder="Login" :required="exchange.requires.login">
     </div>
-    <div class="form-group"
-         v-if="exchange.requiredCredentials && exchange.requiredCredentials.password">
+    <div class="form-group" v-if="exchange.requires.password">
+      <label>Password</label>
       <input class="input form-control" placeholder="Password" type="password">
     </div>
-    <div class="form-group">
-      <button class="btn btn-info">Save</button>
+    {{ exchange.orders }}
+    <h3>Orders</h3>
+    <table class="table table-striped table-bordered orders">
+      <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Price</th>
+            <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(order, index) in exchange.orders" :key="index">
+          <td>{{ order.symbol }}</td>
+          <td>{{ capitalize(order.type) }} {{ order.side }}</td>
+          <td>{{ order.amount }} </td>
+          <td>{{ order.price }} </td>
+          <td>{{ dateTimeString(order.timestamp) }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Balances</h3>
+    <div v-if="error" class="text-danger">
+      Error. Recheck your credentials.
+    </div>
+    <div v-else-if="balances">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+              <th>Coin</th>
+              <th>Available Balance</th>
+              <th>Total Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(balance, index) in balances" :key="index">
+            <td>{{ balance.code }}</td>
+            <td>{{ balance.available }}</td>
+            <td>{{ balance.total }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="balance">
+      <button class="btn btn-primary" @click="fetchBalances">Fetch</button>
+    </div>
+    <div>
+
     </div>
   </div>
 </div>
 </template>
 <script>
-import ccxt from 'ccxt';
+import Exchange from '@/models/Exchange';
+import { capitalize } from 'lodash';
 
 export default {
   data() {
     return {
-      exchange: {}
+      exchange: new Exchange(this.$route.params.id),
+      balances: null,
+      error: null,
+      quoteRate: null,
+      order: null
     };
   },
-  computed: {
-    countries() {
-      let e = [];
-      if (this.exchange.countries instanceof Array) {
-        e = this.exchange.countries;
-      } else if (typeof this.exchange.countries === 'string') {
-        e = [this.exchange.countries];
-      }
-      return e;
-    }
-  },
   methods: {
-    async loadMarket() {
-      this.exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
-      this.exchange.loadingMarkets = true;
-      const started = new Date();
-      try {
-        // await this.exchange.loadMarkets(true);
-      } catch (e) {
-        this.exchange.marketLoadError = e;
-      }
-      const ended = new Date();
-      this.exchange.apiDelay = ended - started;
-
-      this.$forceUpdate();
-    }
+    capitalize,
+    pair(string) {
+      const match = /^(.+)\/(.+)$/.exec(string);
+      return { base: match[1], quote: match[2] };
+    },
+    dateTimeString(time) {
+      return `${new Date(time).toDateString()} ,
+         ${new Date(time).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1')}`;
+    },
+    async fetchBalances() {
+      const e = this.exchange;
+      this.balances = await e.fetchBalances();
+      this.error = e.error ? e.error.message : null;
+    },
   },
-  mounted() {
-    this.exchange = new ccxt[this.$route.params.id]();
-    this.loadMarket();
+  async mounted() {
+    this.exchange.verbose = true;
+    this.balances = await this.exchange.fetchBalances();
+    this.$forceUpdate();
   }
 };
 </script>

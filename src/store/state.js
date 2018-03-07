@@ -1,5 +1,5 @@
 import ccxt from 'ccxt';
-import deepAssign from 'deep-assign';
+import { merge } from 'lodash';
 
 export const STORAGE_KEY = 'R-BOT-STORAGE';
 
@@ -12,16 +12,25 @@ ccxt.exchanges.forEach((e) => {
     name: i.name,
     enabled: false,
     id: i.id,
-    options: null
+    options: null,
+    apiKey: '',
   };
 });
 
 initialState = {
-  exchanges
+  exchanges,
+  arbHistory: [],
+  filters: {},
+  currencies: [],
+  settings: {
+    refreshMode: 'manual',
+    refreshInterval: 8,
+    lockPosition: true
+  }
 };
 
 if (localStorage.getItem(STORAGE_KEY)) {
-  deepAssign(initialState, JSON.parse(localStorage.getItem(STORAGE_KEY)));
+  merge(initialState, JSON.parse(localStorage.getItem(STORAGE_KEY)));
 }
 
 export const state = initialState;

@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Exchanges from '@/components/Exchanges';
 import ExchangeSettings from '@/components/ExchangeSettings';
 import Arbitrage from '@/components/Arbitrage';
+import History from '@/components/History';
 
 Vue.use(Router);
 
@@ -26,6 +27,11 @@ export default new Router({
       path: '/arbitrage',
       name: 'Arbitrage',
       component: Arbitrage
+    },
+    {
+      path: '/history',
+      name: 'History',
+      component: History
     }
   ],
 });

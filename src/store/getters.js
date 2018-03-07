@@ -2,8 +2,13 @@ export default {
   getExchangeState: state => id => state.exchanges[id],
   getExchangeStates: state => state.exchanges,
   getExchangeIdList: state => Object.keys(state.exchanges),
+  getFilteredExchangeStates: state => Object.values(state.exchanges)
+    .filter(e => e.enabled),
   getFilteredExchangeIdList: state => Object.values(state.exchanges)
     .filter(e => e.enabled)
-    .map(e => e.id)
-
+    .map(e => e.id),
+  arbHistory: state => state.arbHistory,
+  filters: state => state.filters,
+  currencies: state => new Set(state.currencies),
+  settings: state => state.settings
 };
