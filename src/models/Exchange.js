@@ -1,6 +1,6 @@
 import ccxt from 'ccxt';
 import assert from 'assert';
-import { wait } from '@/utils';
+import { wait, precisionRound } from '@/utils';
 import store from '@/store';
 import * as types from '@/store/mutation_types';
 import Balance from '@/models/Balance';
@@ -45,6 +45,10 @@ class Exchange {
 
   get apiKey() {
     return this.state.apiKey;
+  }
+
+  get tradingFeePercent() {
+    return this.state.tradingFeePercent;
   }
 
   set apiKey(apiKey) {
@@ -121,16 +125,16 @@ class Exchange {
     } else {
       const markets = this.ccxt.markets;
       if (!markets) {
-        this.error = new Error(`${this.name} requires loaded markets`);
+        this.error =  new Error(`${this.name} requires loaded markets`); // eslint-disable-line
         throw this.error;
       }
       this.tickers = {};
       const activeMarkets = Object.keys(markets)
         .filter(k => markets[k].active);
 
-      for (let market in activeMarkets){
-        await wait(this.ccxt.rateLimit);
-        this.tickers[market] = await this.callApi('fetchTicker', market);
+      for (let index = 0; index < activeMarkets.length; index += 1) {
+        await wait(this.ccxt.rateLimit); // eslint-disable-line
+        this.tickers[market] = await this.callApi('fetchTicker', market); // eslint-disable-line
       }
     }
   }
@@ -183,8 +187,17 @@ class Exchange {
       && order.amount
       && order.price, 'Order invalid');
 
+    let price = order.price;
+    if (store.state.settings.padLimitOrders) {
+      if (order.side === 'buy') {
+        price *= (1 + (store.state.settings.limitOrderPaddingPercent / 100));
+      } else if (order.side === 'sell') {
+        price *= (1 - (store.state.settings.limitOrderPaddingPercent / 100));
+      }
+    }
+
     const response = await this.callApi('createOrder', order.symbol, order.type,
-      order.side, order.amount, order.price);
+      order.side, order.amount, precisionRound(price, 6));
 
     if (this.error) {
       throw this.error;

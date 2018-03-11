@@ -3,6 +3,16 @@
   <div>
     <h1>{{ exchange.name }}</h1>
     <p>Countries: {{ exchange.countries ? exchange.countries.join(', ') : 'none'}}</p>
+    <h3>Settings</h3>
+    <div class="form-group form-inline">
+      Trading Fee Percent &nbsp;
+      <div class="input-group">
+        <input class="form-control" type="number" min="0" max="100" v-model="tradingFeePercent"/>
+        <span class="input-group-append">
+          <span class="input-group-text">%</span>
+        </span>
+      </div>
+    </div>
     <h3>Credentials</h3>
     <div class="form-group"  v-if="exchange.requires.apiKey">
       <label>API key</label>
@@ -70,15 +80,29 @@
     <div class="balance">
       <button class="btn btn-primary" @click="fetchBalances">Fetch</button>
     </div>
-    <div>
-
-    </div>
   </div>
 </div>
 </template>
 <script>
 import Exchange from '@/models/Exchange';
+import * as types from '@/store/mutation_types';
 import { capitalize } from 'lodash';
+
+const mapExchangeSettings = (settings) => {
+  const res = {};
+  settings.forEach((s) => {
+    res[s] = {
+      get() { return this.$store.state.exchanges[this.exchange.id][s]; },
+      set(value) {
+        this.$store.commit(types.PATCH_EXCHANGE, {
+          field: { key: s, value },
+          id: this.exchange.id
+        });
+      }
+    };
+  });
+  return res;
+};
 
 export default {
   data() {
@@ -98,13 +122,16 @@ export default {
     },
     dateTimeString(time) {
       return `${new Date(time).toDateString()} ,
-         ${new Date(time).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1')}`;
+       ${new Date(time).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1')}`;
     },
     async fetchBalances() {
       const e = this.exchange;
       this.balances = await e.fetchBalances();
       this.error = e.error ? e.error.message : null;
     },
+  },
+  computed: {
+    ...mapExchangeSettings(['tradingFeePercent'])
   },
   async mounted() {
     this.exchange.verbose = true;
@@ -114,28 +141,30 @@ export default {
 };
 </script>
 <style scoped>
-.wrapper {
-  max-width: 724px;
-  margin: 0 auto;
-}
+  .wrapper {
+    max-width: 724px;
+    margin: 0 auto;
+  }
 
-input {
-  text-align: center
-}
+  input {
+    text-align: center
+  }
 
-::-webkit-input-placeholder {
-   text-align: center;
-}
+  ::-webkit-input-placeholder {
+    text-align: center;
+  }
 
-:-moz-placeholder { /* Firefox 18- */
-   text-align: center;
-}
+  :-moz-placeholder {
+    /* Firefox 18- */
+    text-align: center;
+  }
 
-::-moz-placeholder {  /* Firefox 19+ */
-   text-align: center;
-}
+  ::-moz-placeholder {
+    /* Firefox 19+ */
+    text-align: center;
+  }
 
-:-ms-input-placeholder {
-   text-align: center;
-}
+  :-ms-input-placeholder {
+    text-align: center;
+  }
 </style>

@@ -2,7 +2,7 @@
   <div class="loader"></div>
 </template>
 <style scoped>
-.loader,
+.loader,q
 .loader:before,
 .loader:after {
   background: #5cb85c;

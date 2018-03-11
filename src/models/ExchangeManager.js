@@ -38,13 +38,12 @@ class ExchangeManager {
   }
 
   fetchTickers() {
-    const promises = this.enabledExchanges.map((ex) => {
-      return ex.fetchTickers().then(() => {
+    const promises = this.enabledExchanges.map(ex =>
+      ex.fetchTickers().then(() => {
         if (!ex.tickers) {
           ex.error = new Error(`Unable to get tickers for ${ex.name}`);
         }
-      });
-    });
+      }));
     return Promise.all(promises);
   }
 

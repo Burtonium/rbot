@@ -1,6 +1,6 @@
 export default {
   getExchangeState: state => id => state.exchanges[id],
-  getExchangeStates: state => state.exchanges,
+  exchangeStates: state => state.exchanges,
   getExchangeIdList: state => Object.keys(state.exchanges),
   getFilteredExchangeStates: state => Object.values(state.exchanges)
     .filter(e => e.enabled),

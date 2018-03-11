@@ -1,7 +1,7 @@
 {
   "name": "arbot",
-  "version": "1.0.0",
-  "description": "Arbing bot for cryptos",
+  "version": "0.0.1",
+  "description": "Arbing bot for cryptocurrencies",
   "author": "Matt Burton <madeofburtonium@gmail.com>",
   "private": true,
   "scripts": {
@@ -17,9 +17,12 @@
     "@fortawesome/fontawesome-free-solid": "^5.0.8",
     "@fortawesome/vue-fontawesome": "0.0.22",
     "bignumber.js": "^6.0.0",
+    "bootstrap-vue": "^2.0.0-rc.1",
     "ccxt": "^1.10.1021",
     "dotenv-webpack": "^1.5.4",
+    "jquery": "^3.3.1",
     "lodash": "^4.17.5",
+    "uuid": "^3.2.1",
     "vue": "^2.5.2",
     "vue-progress-path": "0.0.2",
     "vue-radial-progress": "^0.2.10",

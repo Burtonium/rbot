@@ -30,6 +30,10 @@ export default {
   cursor: pointer;
 }
 
+.hover-info:hover {
+  background-color: #c0e6f2;
+}
+
 /* button overrides for vuejs-dialog */
 .dg-btn {
   display: inline-block;

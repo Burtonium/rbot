@@ -56,96 +56,12 @@
         <div class="tab-pane active" id="arbs" role="tabpanel">
           <spinner v-if="arbs.length === 0"></spinner>
           <transition-group name="flip-list" tag="div">
-            <div class="card arbitrage-card" v-for="(arb, index) in filteredArbs" :key="arb.id">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-8">
-                    <h1 class="card-title">
-                      Arb #{{ index + 1 }}
-                      <loading-progress   :progress="progressBar"
-                                          :indeterminate="false"
-                                          size="30"
-                                          fillDuration="10" style="position:relative;bottom:-20px; left:10px; margin:-35px"/>
-                    </h1>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <label style="font-weight:bold">Starting Amount</label>
-                        <input v-model="arb.startingAmount" class="form-control"
-                               placeholder="Amount" type="number">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col col-md-4 text-right"
-                       :class="{'text-success': arb.percent > 0,
-                                'text-danger': arb.percent < 0}">
-                    <h1 class="card-subtitle">
-                      {{ Math.abs(arb.percent) }}%
-                    </h1>
-                    <h6>{{ arb.profit }} {{ arb.profitCurrency }}</h6>
-                  </div>
-                </div>
-                <br>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                        <th>Exchange</th>
-                        <th>Available Balance</th>
-                        <th>Order</th>
-                        <th>24H Volume</th>
-                        <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(order, index) in arb.orders" :key="index">
-                      <td>
-                        <router-link :to="'/exchanges/' + order.exchangeId">
-                          {{ order.exchange.name }}
-                        </router-link>
-                      </td>
-                      <td v-if="!order.exchange.balances ||
-                                !order.exchange.has.fetchBalance">
-                        Unavailable
-                      </td>
-                      <td class="text-warning"
-                         v-else-if="order.exchange.unfulfilledRequirements">
-                        Requires: {{ order.exchange.unfulfilledRequirements }}
-                      </td>
-                      <td v-else-if="order.side === 'buy'">
-                        {{ order.availableQuoteBalance }} {{ order.pair.quote }}
-                      </td>
-                      <td v-else-if="order.side === 'sell'">
-                        {{ order.availableBaseBalance  }} {{ order.pair.base }}
-                      </td>
-
-                      <td v-if="order.side === 'buy'">
-                        Buy {{ order.amount }} {{ order.pair.base }}
-                        for {{ order.quotedAmountString }}
-                      </td>
-                      <td v-else-if="order.side === 'sell'">
-                        Sell {{ order.amount }} {{ order.pair.base }}
-                        for {{ order.quotedAmountString }}
-                      </td>
-                      <td v-if="order.quoteVolume">
-                        {{ precisionRound(order.quoteVolume, 6) }} {{ order.pair.quote }}
-                      </td>
-                      <td v-else>
-                        {{ precisionRound(order.baseVolume * order.price, 6) }} {{ order.pair.quote }}
-                      </td>
-                      <td class="text-danger" v-if="order.exchange.error">
-                        {{ order.exchange.error.message || 'Error' }}
-                      </td>
-                      <td class="text-danger" v-else-if="order.insufficientBalance">
-                        Insufficient Balance
-                      </td>
-                      <td class="text-success" v-else>Ready</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div class="form-group">
-                  <button class="btn btn-primary float-right" @click="execute(arb)">Execute</button>
-                </div>
-              </div>
-            </div>
+            <arbitrage-card :arb="arb"
+                            :index="index"
+                            v-for="(arb, index) in filteredArbs"
+                            :key="arb.arbId"
+                            :progress="progressBar"
+                            @execute="execute(arb)"/>
           </transition-group>
         </div>
         <div class="tab-pane" id="history" role="tabpanel">
@@ -162,19 +78,21 @@
     <modal v-if="selectedArb" @dismiss="selectedArb = null">
       <h3 slot="header">Arbitrage Execution</h3>
       <div slot="body">
-        <arbitrage-details :arb="selectedArb"></arbitrage-details>
+        <arbitrage-details :arb="selectedArb"
+        :manager="manager" @dismiss="selectedArb = null"></arbitrage-details>
       </div>
-      <span slot="confirm">Execute</span>
     </modal>
   </div>
 </template>
+
 <script>
 import ExchangeManager from '@/models/ExchangeManager';
 import Order from '@/models/Order';
 import Arbitrage from '@/models/Arbitrage';
 import Spinner from '@/components/Spinner';
-import ArbitrageHistory from '@/components/ArbitrageHistory';
+import ArbitrageCard from '@/components/ArbitrageCard';
 import ArbitrageDetails from '@/components/ArbitrageDetails';
+import ArbitrageHistory from '@/components/ArbitrageHistory';
 import Filters from '@/components/Filters';
 import Settings from '@/components/ArbitrageSettings';
 import Modal from '@/components/Modal';
@@ -189,7 +107,6 @@ export default {
   data() {
     return {
       manager: {},
-      tickers: {},
       status: 'Loading',
       pairs: {},
       arbs: [],
@@ -239,9 +156,6 @@ export default {
 
       return arbs;
     },
-    activePairCount() {
-      return Object.keys(this.tickers).length;
-    }
   },
   components: {
     Spinner,
@@ -250,7 +164,8 @@ export default {
     Filters,
     Settings,
     Icon,
-    Modal
+    Modal,
+    ArbitrageCard
   },
   methods: {
     ...mapMutations([types.TOGGLE_FILTER, types.UPDATE_CURRENCIES, types.UPDATE_PAIRS]),
@@ -305,9 +220,9 @@ export default {
     },
     async execute(arb) {
       try {
-        if (arb.containsInsufficientBalances) {
-          await this.$dialog.confirm(`Arb has orders from exchanges with insufficient
-            balances. Continue anyway?`);
+        if (!arb.hasBalances) {
+          await this.$dialog.confirm(`Arb has orders from exchanges without a
+            balance. Continue anyway?`);
         }
 
         this.selectedArb = arb;
@@ -328,10 +243,25 @@ export default {
       this.status = 'Idle';
       this.$forceUpdate();
     },
+    async updateOrderInfo() {
+      this.status = 'Refreshing open arbs';
+      const promises = this.arbHistory
+        .map(a => new Arbitrage({
+          ...a,
+          orders: a.orders.map(o => new Order({
+            ...o,
+            exchange: this.manager.exchanges[o.exchangeId]
+          }))
+        }))
+        .filter(a => a.status === 'open')
+        .map(a => a.updateOrderInfo());
+      await Promise.all(promises);
+      this.status = 'Idle';
+    },
     async countdown() {
       this.timeRemainingBeforeRefresh = this.refreshInterval;
       while (this.timeRemainingBeforeRefresh > 0) {
-        await wait(1000); /* eslint-disable-line */
+        await wait(1000); // eslint-disable-line
         this.timeRemainingBeforeRefresh -= 1;
       }
     },
@@ -345,10 +275,11 @@ export default {
         window.mainLoopTimeout = setTimeout(async () => {
           while (window.mainLoopTimeout) {
             if (this.refreshMode === 'auto') {
-              await this.refresh();
-              await this.countdown();
+              await this.refresh(); // eslint-disable-line
+              await this.updateOrderInfo(); // eslint-disable-line
+              await this.countdown(); // eslint-disable-line
             }
-            await wait(1000);
+            await wait(1000); // eslint-disable-line
           }
         });
       }

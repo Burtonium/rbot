@@ -7,19 +7,12 @@
       <button class="btn btn-primary" @click="clearHistory">Clear History</button>
       <br>
       <br>
-      <div class="card arbitrage-card" v-for="(arb, index) in arbHistory" :key="index">
+      <div class="card arbitrage-card" v-for="(arb, index) in history" :key="index">
         <div class="card-body">
           <div class="row">
             <div class="col-md-8">
               <h1 class="card-title">
-                Arb #{{ index + 1 }}
-              </h1>
-            </div>
-            <div class="col col-md-4 text-right"
-                 :class="{'text-success': arb.percent > 0,
-                          'text-danger': arb.percent < 0}">
-              <h1 class="card-subtitle">
-                {{ Math.abs(arb.percent) }}%
+                {{ new Date(arb.timestamp).toLocaleString() }}
               </h1>
             </div>
           </div>
@@ -41,12 +34,12 @@
                 </td>
                 <td v-if="order.side === 'buy'">
                   Bought {{ order.amount }} {{ order.pair.base }}
-                  for {{ precisionRound(order.amount * order.price, 8) }}
+                  for {{ precisionRound(order.amount * order.limitPrice, 8) }}
                   {{ order.pair.quote }}
                 </td>
                 <td v-else-if="order.side === 'sell'">
                   Sold {{ order.amount }} {{ order.pair.base }}
-                  for {{ precisionRound(order.amount * order.price, 8) }}
+                  for {{ precisionRound(order.amount * order.limitPrice, 8) }}
                   {{ order.pair.quote }}
                 </td>
                 <td>
@@ -55,6 +48,9 @@
               </tr>
             </tbody>
           </table>
+          <div class="text-danger" v-for="order in arb.orders" :key="order.id">
+            <span v-if="order.error">Error: {{ order.error }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -74,15 +70,21 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['arbHistory'])
+    ...mapGetters(['arbHistory']),
+    history() {
+      return this.arbHistory.concat().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
   },
   methods: {
     precisionRound,
     clearHistory() {
       store.commit(types.CLEAR_ARBITRAGE_HISTORY);
     }
-  },
-  mounted() {
   }
 };
 </script>
+<style scoped>
+.arbitrage-card {
+  margin-bottom: 20px;
+}
+</style>

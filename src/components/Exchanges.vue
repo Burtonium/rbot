@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="exchanges wrapper">
-      <li v-for="(e, index) in getExchangeStates" :key="index"
+      <li v-for="(e, index) in exchangeStates" :key="index"
           @click="toggleExchangeAndTestApi(e.id)">
         <span class="badge"
               :class="{'badge-success': e.enabled, 'badge-danger': !e.enabled}">
@@ -71,7 +71,7 @@ export default {
   computed: {
     ...mapGetters([
       'getExchangeState',
-      'getExchangeStates',
+      'exchangeStates',
       'getFilteredExchangeIdList',
       'getExchangeIdList',
     ]),

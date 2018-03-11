@@ -13,9 +13,21 @@ export default {
   [types.ASSIGN_EXCHANGE_STATE](state, args) {
     Object.assign(state.exchanges[args.id], pickBy(args, a => a !== 'id'));
   },
+  [types.PATCH_EXCHANGE](state, args) {
+    assert(state.exchanges[args.id], 'Exchange not found');
+    assert(Object.prototype.hasOwnProperty.call(state.exchanges[args.id], args.field.key), 'Key not found');
+    Vue.set(state.exchanges[args.id], args.field.key, args.field.value);
+  },
   [types.ADD_TO_ARBITRAGE_HISTORY](state, args) {
     assert(args.arb, 'Arb is a required argument');
     state.arbHistory.push(args.arb);
+  },
+  [types.UPDATE_ARBITRAGE_HISTORY_ORDERS](state, args) {
+    assert(args.id, 'Id is required');
+    assert(args.orders, 'Orders are required');
+    const arb = state.arbHistory.find(a => a.id === args.id);
+    assert(arb, 'Arb not found');
+    Vue.set(arb, 'orders', args.orders);
   },
   [types.CLEAR_ARBITRAGE_HISTORY](state) {
     state.arbHistory = [];
@@ -54,7 +66,7 @@ export default {
   [types.UPDATE_CURRENCIES](state, currencies) {
     state.currencies = currencies;
   },
-  [types.PATCH_SETTINGS](state, settings) {
-    Object.assign(state.settings, settings);
+  [types.PATCH_SETTING](state, setting) {
+    Object.assign(state.settings, setting);
   }
 };

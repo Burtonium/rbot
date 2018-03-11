@@ -14,6 +14,7 @@ ccxt.exchanges.forEach((e) => {
     id: i.id,
     options: null,
     apiKey: '',
+    tradingFeePercent: 0
   };
 });
 
@@ -25,7 +26,9 @@ initialState = {
   settings: {
     refreshMode: 'manual',
     refreshInterval: 8,
-    lockPosition: true
+    lockPosition: true,
+    padLimitOrders: true,
+    limitOrderPaddingPercent: 5
   }
 };
 
