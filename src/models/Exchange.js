@@ -133,6 +133,7 @@ class Exchange {
         .filter(k => markets[k].active);
 
       for (let index = 0; index < activeMarkets.length; index += 1) {
+        const market = activeMarkets[index];
         await wait(this.ccxt.rateLimit); // eslint-disable-line
         this.tickers[market] = await this.callApi('fetchTicker', market); // eslint-disable-line
       }
