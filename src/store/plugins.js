@@ -4,7 +4,7 @@ import * as types from './mutation_types';
 
 const localStoragePlugin = (store) => {
   store.subscribe((mutation, state) => {
-    const syncedData = pick(state, ['exchanges', 'arbHistory', 'filters', 'currencies', 'settings']);
+    const syncedData = pick(state, ['exchanges', 'arbHistory', 'filters', 'currencies', 'settings', 'token']);
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(syncedData));
 

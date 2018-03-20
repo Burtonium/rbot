@@ -68,5 +68,11 @@ export default {
   },
   [types.PATCH_SETTING](state, setting) {
     Object.assign(state.settings, setting);
+  },
+  [types.AUTHENTICATE](state, token) {
+    state.token = token;
+  },
+  [types.LOG_OUT](state) {
+    state.token = null;
   }
 };

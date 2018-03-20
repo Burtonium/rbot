@@ -1,17 +1,24 @@
 <template>
   <div id="app">
-    <navbar></navbar>
+    <navbar v-if="isAuthenticated"></navbar>
     <router-view/>
   </div>
 </template>
 
 <script>
 import Navbar from '@/components/Navbar';
+import Login from '@/components/Login';
 
 export default {
   name: 'App',
+  computed: {
+    isAuthenticated() {
+      return this.$store.getters.isAuthenticated;
+    }
+  },
   components: {
-    Navbar
+    Navbar,
+    Login
   }
 };
 </script>

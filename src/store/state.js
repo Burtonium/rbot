@@ -19,6 +19,7 @@ ccxt.exchanges.forEach((e) => {
 });
 
 initialState = {
+  token: null,
   exchanges,
   arbHistory: [],
   filters: {},

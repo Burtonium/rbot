@@ -61,9 +61,7 @@ const mapSettings = (settings) => {
 
 export default {
   data() {
-    return {
-
-    };
+    return {};
   },
   computed: {
     ...mapSettings([
@@ -71,7 +69,8 @@ export default {
       'refreshInterval',
       'lockPosition',
       'padLimitOrders',
-      'limitOrderPaddingPercent'
+      'limitOrderPaddingPercent',
+      'myNewSetting'
     ])
   },
   methods: {

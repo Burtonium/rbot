@@ -10,5 +10,6 @@ export default {
   arbHistory: state => state.arbHistory,
   filters: state => state.filters,
   currencies: state => new Set(state.currencies),
-  settings: state => state.settings
+  settings: state => state.settings,
+  isAuthenticated: state => !!state.token
 };
