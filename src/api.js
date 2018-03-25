@@ -4,7 +4,7 @@ import * as types from '@/store/mutation_types';
 import assert from 'assert';
 
 const instance = axios.create({ baseURL: process.env.API_URL });
-const accessHeader = () => ({ headers: { 'x-access-token': store.state.token }});
+const accessHeader = () => ({ headers: { 'x-access-token': store.state.token } });
 
 const attempt = async (method, route, data) => {
   assert(typeof instance[method] === 'function');
@@ -25,4 +25,4 @@ export const authenticate = user => instance.post('/authenticate', user);
 export const fetchOrderCaddies = async () => (await instance.get('/caddies')).data;
 export const fetchPairs = async () => (await instance.get('/pairs')).data;
 export const fetchExchanges = async () => (await instance.get('/exchanges')).data;
-export const createCaddy = async (caddy) => attempt('post', '/caddies', { caddy });
+export const createCaddy = async caddy => attempt('post', '/caddies', { caddy });

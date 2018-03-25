@@ -1,18 +1,36 @@
 <template>
   <div class="card caddy-card">
     <div class="card-body">
-      <h1 class="card-title">
-        {{ caddy.label }}
-        <button type="button" class="close" aria-label="Close" @click="$emit('delete')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </h1>
-      <h4>
-        Status:
-        <span class="text-success clickable" v-if="caddy.active" @click="$emit('disable')">Active</span>
-        <span class="text-muted" v-else @click="$emit('enable')">Disabled</span>
-      </h4>
-      <h4>Created: {{ new Date(caddy.createdAt).toLocaleString() }}</h4>
+      <button type="button" class="close" aria-label="Close" @click="$emit('delete')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div class="row">
+        <div class="col-md-4">
+          <h2 class="card-title">
+            {{ caddy.label }}
+          </h2>
+        </div>
+        <div class="col-md-4">
+          <h5>
+            Status:
+            <span class="text-success clickable" v-if="caddy.active" @click="$emit('disable')">
+              Active
+            </span>
+            <span class="text-muted" v-else @click="$emit('enable')">Disabled</span>
+            <br>
+            {{ new Date(caddy.createdAt).toLocaleString() }}
+
+          </h5>
+        </div>
+        <div class="col-md-4">
+          <h5>
+            Reference: {{ caddy.referenceMarkets.map(rm => rm.exchange.name).join(', ') }}
+            <br>
+            Triggers:
+            {{ caddy.triggerMarkets.map(tm => `${tm.exchange.name} ${tm.side}`).join(', ') }}
+          </h5>
+        </div>
+      </div>
     </div>
   </div>
 </template>

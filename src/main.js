@@ -10,8 +10,6 @@ import bToggle from 'bootstrap-vue/es/directives/toggle/toggle';
 import App from './App';
 import router from './router';
 import store from './store';
-import * as api from './api';
-import ExchangeManager from '@/models/ExchangeManager';
 
 Vue.use(VueProgress, {
   defaultShape: 'circle',
@@ -22,10 +20,6 @@ Vue.use(VuejsDialog);
 Vue.component('v-select', vSelect);
 Vue.component('b-collapse', bCollapse);
 Vue.directive('b-toggle', bToggle);
-
-const manager =
-Vue.prototype.$api = api;
-Vue.prototype.$manager = new ExchangeManager();
 
 /* eslint-disable no-new */
 new Vue({
