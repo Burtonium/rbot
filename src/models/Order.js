@@ -33,7 +33,7 @@ class Order {
   get params() {
     return {
       kucoin: { type: this.side.toUpperCase() }
-    }[this.exchangeId];
+    };
   }
 
   get availableQuoteBalance() {

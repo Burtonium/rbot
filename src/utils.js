@@ -11,3 +11,8 @@ export const precisionRound = (number, precision) => {
 
 
 export const toWords = name => capitalize(replace(kebabCase(name), new RegExp('-', 'g'), ' '));
+
+export const dateTimeString = (time) => {
+  return `${new Date(time).toDateString()} ,
+   ${new Date(time).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1')}`;
+};

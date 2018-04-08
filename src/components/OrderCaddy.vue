@@ -6,22 +6,15 @@
         <a class="nav-link active" data-toggle="tab" href="#active" role="tab">Active</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#closed" role="tab">Closed</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#create" role="tab">Create</a>
       </li>
     </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="active" role="tabpanel">
-          <order-caddy-card v-for="caddy in activeCaddies"
+          <order-caddy-card v-for="caddy in allCaddies"
                             :key="'caddy-' + caddy.id"
-                            :caddy="caddy"/>
-        </div>
-        <div class="tab-pane" id="closed" role="tabpanel">
-          <order-caddy-card v-for="caddy in closedCaddies"
-                            :key="'caddy-' + caddy.id"
-                            :caddy="caddy"/>
+                            :caddy="caddy"
+                            @delete="deleteCaddy(caddy)"/>
         </div>
         <div class="tab-pane" id="create" role="tabpanel">
           <order-caddy-create />
@@ -30,7 +23,7 @@
   </div>
 </template>
 <script>
-import { fetchOrderCaddies } from '@/api';
+import { fetchOrderCaddies, deleteCaddy } from '@/api';
 import OrderCaddyCreate from '@/components/OrderCaddyCreate';
 import OrderCaddyCard from '@/components/OrderCaddyCard';
 import Checkmark from '@/components/Checkmark';
@@ -47,17 +40,24 @@ export default {
     };
   },
   computed: {
-    activeCaddies() {
-      return this.caddies.filter(c => c.active)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    },
-    closedCaddies() {
-      return this.caddies.filter(c => !c.active)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    allCaddies() {
+      return this.caddies.concat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
   },
-  async mounted() {
-    this.caddies = await fetchOrderCaddies();
+  methods: {
+    async deleteCaddy(caddy) {
+      const { success } = await deleteCaddy(caddy.id)
+      if (success) {
+        const index = this.caddies.indexOf(caddy);
+        this.caddies.splice(index, 1);
+      }
+    }
+  },
+  async beforeRouteEnter(to, from, next) {
+    const caddies = await fetchOrderCaddies();
+    next(vm => {
+      vm.caddies = caddies;
+    });
   }
 };
 </script>

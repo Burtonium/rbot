@@ -4,6 +4,7 @@ import Exchanges from '@/components/Exchanges';
 import ExchangeSettings from '@/components/ExchangeSettings';
 import Arbitrage from '@/components/Arbitrage';
 import OrderCaddy from '@/components/OrderCaddy';
+import CaddyView from '@/components/OrderCaddyView';5
 import Login from '@/components/Login';
 import store from '@/store';
 
@@ -48,6 +49,12 @@ const router = new Router({
       path: '/caddy',
       name: 'Caddy',
       component: OrderCaddy
+    },
+    {
+      meta: { requiresAuth: true },
+      path: '/caddy/:id',
+      name: 'CaddyView',
+      component: CaddyView
     },
     {
       path: '/login',

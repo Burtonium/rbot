@@ -87,6 +87,7 @@
 import Exchange from '@/models/Exchange';
 import * as types from '@/store/mutation_types';
 import { capitalize } from 'lodash';
+import { dateTimeString } from '@/utils';
 
 const mapExchangeSettings = (settings) => {
   const res = {};
@@ -116,13 +117,10 @@ export default {
   },
   methods: {
     capitalize,
+    dateTimeString,
     pair(string) {
       const match = /^(.+)\/(.+)$/.exec(string);
       return { base: match[1], quote: match[2] };
-    },
-    dateTimeString(time) {
-      return `${new Date(time).toDateString()} ,
-       ${new Date(time).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1')}`;
     },
     async fetchBalances() {
       const e = this.exchange;

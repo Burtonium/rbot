@@ -1,7 +1,7 @@
 <template>
-  <div class="card caddy-card">
+  <div class="card caddy-card clickable" @click="$router.push(`/caddy/${caddy.id}`)">
     <div class="card-body">
-      <button type="button" class="close" aria-label="Close" @click="$emit('delete')">
+      <button type="button" class="close" aria-label="Close" @click.stop="$emit('delete')">
         <span aria-hidden="true">&times;</span>
       </button>
       <div class="row">
