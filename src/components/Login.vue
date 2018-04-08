@@ -33,7 +33,7 @@ export default {
       try {
         const result = await authenticate(this.user);
         this.$store.commit(types.AUTHENTICATE, result.data.token);
-        this.$router.push('/exchanges');
+        this.$router.push('/');
       } catch (e) {
         this.error = true;
       }

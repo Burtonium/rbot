@@ -11,7 +11,7 @@
     </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="active" role="tabpanel">
-          <order-caddy-card v-for="caddy in allCaddies"
+          <order-caddy-card v-for="caddy in caddies"
                             :key="'caddy-' + caddy.id"
                             :caddy="caddy"
                             @delete="deleteCaddy(caddy)"/>
@@ -40,24 +40,21 @@ export default {
     };
   },
   computed: {
-    allCaddies() {
-      return this.caddies.concat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
   },
   methods: {
+    fetchOrderCaddies,
     async deleteCaddy(caddy) {
-      const { success } = await deleteCaddy(caddy.id)
+      const { success } = await deleteCaddy(caddy.id);
       if (success) {
         const index = this.caddies.indexOf(caddy);
         this.caddies.splice(index, 1);
       }
     }
   },
-  async beforeRouteEnter(to, from, next) {
-    const caddies = await fetchOrderCaddies();
-    next(vm => {
-      vm.caddies = caddies;
-    });
+  
+  async mounted() {
+    this.caddies = ((await this.fetchOrderCaddies()) || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
+  
 };
 </script>

@@ -2,7 +2,9 @@
   <div class="wrapper" v-if="caddy">
     <h1>Caddy: {{ caddy.label }}</h1>
     <br>
-    <h4 class="form-inline">Min Profitability Margin: <input class="form-control" v-model="caddy.minProfitabilityPercent"/></h4>
+    <h4 class="form-inline">Min Profitability Margin:
+      <input class="form-control" v-model="caddy.minProfitabilityPercent"/>
+    </h4>
     <br>
     <h4>Reference Markets</h4>
     <table class="table table-striped table-bordered orders">
@@ -45,7 +47,7 @@
     </table>
     <br>
     <h4>Arbitrage</h4>
-    <div class="card" v-for="arb in arbs">
+    <div class="card" v-for="arb in arbs"><!-- eslint expected v-bind:key directive -->
       <div class="card-body">
         <table class="table table-striped table-bordered orders">
           <thead>

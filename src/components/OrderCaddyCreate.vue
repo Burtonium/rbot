@@ -81,7 +81,7 @@
           <br>
           <button class="btn btn-primary"
                   :class="{ disabled: !caddy.triggerMarkets.length }"
-                  :disabled="!caddy.triggerMarkets.length" @click="createCaddy">
+                  :disabled="!caddy.triggerMarkets.length" @click="createOrderCaddy">
             Save
           </button>
         </div>
@@ -173,11 +173,9 @@ export default {
         this.caddy.triggerMarkets.push({ ...trigger, side: this.side, amount: this.amount });
       }
     },
-    async createCaddy() {
-      const { success, status } = await createCaddy(this.caddy);
-      if (!success && status === 401) {
-        this.$router.push('/login');
-      } else if (success) {
+    async createOrderCaddy() {
+      const { success } = await createCaddy(this.caddy);
+      if (success) {
         this.success = true;
       }
     },
@@ -193,6 +191,7 @@ export default {
     }
   },
   async mounted() {
+    console.log('Mounted');
     this.exchanges = (await fetchExchanges())
       .filter(e => this.getFilteredExchangeIdList.includes(e.ccxtId));
     this.allMarkets = flatten(this.exchanges.map(e => e.markets));

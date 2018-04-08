@@ -4,7 +4,7 @@ import Exchanges from '@/components/Exchanges';
 import ExchangeSettings from '@/components/ExchangeSettings';
 import Arbitrage from '@/components/Arbitrage';
 import OrderCaddy from '@/components/OrderCaddy';
-import CaddyView from '@/components/OrderCaddyView';5
+import CaddyView from '@/components/OrderCaddyView';
 import Login from '@/components/Login';
 import store from '@/store';
 

@@ -17,6 +17,13 @@ export default {
       return this.$store.getters.isAuthenticated;
     }
   },
+  watch: {
+    isAuthenticated(){
+      if (!this.isAuthenticated){
+        this.$router.push('/login');
+      }
+    }
+  }
   components: {
     Navbar,
     Login
