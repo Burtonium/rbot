@@ -102,7 +102,7 @@ export default {
   async mounted() {
     this.caddy = await fetchOrderCaddy(this.$route.params.id);
   }
-}
+};
 </script>
 <style scoped>
   .wrapper {

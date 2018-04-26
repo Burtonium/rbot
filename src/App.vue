@@ -8,6 +8,7 @@
 <script>
 import Navbar from '@/components/Navbar';
 import Login from '@/components/Login';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'App',
@@ -19,6 +20,13 @@ export default {
   components: {
     Navbar,
     Login
+  },
+  watch: {
+    isAuthenticated() {
+      if (!this.isAuthenticated) {
+        this.$router.push('/login');
+      }
+    }
   }
 };
 </script>
