@@ -138,6 +138,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
   .wrapper {
     max-width: 724px;

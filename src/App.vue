@@ -23,7 +23,7 @@ export default {
         this.$router.push('/login');
       }
     }
-  }
+  },
   components: {
     Navbar,
     Login

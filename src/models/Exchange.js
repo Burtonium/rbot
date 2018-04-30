@@ -5,6 +5,7 @@ import store from '@/store';
 import * as types from '@/store/mutation_types';
 import Balance from '@/models/Balance';
 import { pick, kebabCase, replace, capitalize, keyBy } from 'lodash';
+import api from '../api';
 
 class Exchange {
   constructor(args) {

@@ -1,13 +1,19 @@
 import ccxt from 'ccxt';
 import Exchange from '@/models/Exchange';
 import { flatten, keyBy, uniqBy } from 'lodash';
+import { fetchExchanges } from "../api";
 
 class ExchangeManager {
   constructor() {
     this.exchanges = {};
+    /*
     ccxt.exchanges.forEach((exchangeId) => {
       this.exchanges[exchangeId] = new Exchange({ id: exchangeId });
     });
+    */
+    
+    exchanges = fetchExchanges(1);
+    console.log("num exchanges: " + echanges.length);
   }
 
   get enabledExchanges() {
