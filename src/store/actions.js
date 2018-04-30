@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import assert from 'assert';
 import * as types from './mutation_types';
+import { patchExchange, fetchExchanges } from '@/api';
 
 export default {
   clearStorage({ commit }) {
@@ -51,5 +52,16 @@ export default {
     const index = symbols.indexOf(symbol);
     symbols.splice(index, 1);
     commit(types.SET_FILTER_DATA, { key: 'exchanges', data: filter.data });
+  },
+  async fetchExchanges({ commit }) {
+    const exchanges = await fetchExchanges();
+    commit(types.SET_EXCHANGES, exchanges);
+  },
+  async patchExchange({ commit }, args) {
+    const { success, exchange } = await patchExchange(args);
+    console.log(exchange);
+    if (success) {
+      commit(types.ASSIGN_EXCHANGE_STATE, exchange);
+    }
   }
 };

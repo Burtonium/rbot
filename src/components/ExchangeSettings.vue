@@ -2,36 +2,33 @@
 <div class="wrapper">
   <div>
     <h1>{{ exchange.name }}</h1>
-    <p>Countries: {{ exchange.countries ? exchange.countries.join(', ') : 'none'}}</p>
     <h3>Settings</h3>
-    <div class="form-group form-inline">
-      Trading Fee Percent &nbsp;
-      <div class="input-group">
-        <input class="form-control" type="number" min="0" max="100" v-model="tradingFeePercent"/>
-        <span class="input-group-append">
-          <span class="input-group-text">%</span>
-        </span>
+    <div class="form-group">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="enabledCheck" v-model="enabled">
+        <label class="form-check-label" for="enabledCheck">Enabled</label>
       </div>
     </div>
     <h3>Credentials</h3>
     <div class="form-group"  v-if="exchange.requires.apiKey">
       <label>API key</label>
       <input class="input form-control" placeholder="API Key"
-             v-model="exchange.apiKey">
+             v-model.lazy="apiKey">
     </div>
     <div class="form-group" v-if="exchange.requires.secret">
       <label>Secret</label>
       <input class="input form-control"
              placeholder="Secret"
-             v-model="exchange.secret">
+             v-model.lazy="secret"
+             type="password">
     </div>
     <div class="form-group"  v-if="exchange.requires.login">
       <label>Login</label>
-      <input class="input form-control" placeholder="Login" :required="exchange.requires.login">
+      <input class="input form-control" placeholder="Login" v-model.lazy="uid">
     </div>
     <div class="form-group" v-if="exchange.requires.password">
       <label>Password</label>
-      <input class="input form-control" placeholder="Password" type="password">
+      <input class="input form-control" placeholder="Password" type="password" v-model.lazy="password">
     </div>
     {{ exchange.orders }}
     <h3>Orders</h3>
@@ -85,7 +82,6 @@
 </template>
 <script>
 import Exchange from '@/models/Exchange';
-import * as types from '@/store/mutation_types';
 import { capitalize } from 'lodash';
 import { dateTimeString } from '@/utils';
 
@@ -95,9 +91,9 @@ const mapExchangeSettings = (settings) => {
     res[s] = {
       get() { return this.$store.state.exchanges[this.exchange.id][s]; },
       set(value) {
-        this.$store.commit(types.PATCH_EXCHANGE, {
-          field: { key: s, value },
-          id: this.exchange.id
+        this.$store.dispatch('patchExchange', {
+          [s]: value,
+          ccxtId: this.exchange.id
         });
       }
     };
@@ -129,7 +125,7 @@ export default {
     },
   },
   computed: {
-    ...mapExchangeSettings(['tradingFeePercent'])
+    ...mapExchangeSettings(['tradingFeePercent', 'enabled', 'apiKey', 'secret', 'uid', 'password'])
   },
   async mounted() {
     this.exchange.verbose = true;

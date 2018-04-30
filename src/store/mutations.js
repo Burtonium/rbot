@@ -1,22 +1,14 @@
 import Vue from 'vue';
-import { pickBy } from 'lodash';
+import { omit, keyBy } from 'lodash';
 import assert from 'assert';
 import * as types from './mutation_types';
 
 export default {
-  [types.TOGGLE_EXCHANGE](state, id) {
-    if (typeof state.exchanges[id] === 'undefined') {
-      throw new Error('Exchange undefined');
-    }
-    state.exchanges[id].enabled = !state.exchanges[id].enabled;
+  [types.SET_EXCHANGES](state, exchanges) {
+    state.exchanges = Object.assign({}, state.exchanges, keyBy(exchanges, 'ccxtId'));
   },
   [types.ASSIGN_EXCHANGE_STATE](state, args) {
-    Object.assign(state.exchanges[args.id], pickBy(args, a => a !== 'id'));
-  },
-  [types.PATCH_EXCHANGE](state, args) {
-    assert(state.exchanges[args.id], 'Exchange not found');
-    assert(Object.prototype.hasOwnProperty.call(state.exchanges[args.id], args.field.key), 'Key not found');
-    Vue.set(state.exchanges[args.id], args.field.key, args.field.value);
+    Object.assign(state.exchanges[args.id], omit(args, ['id', 'ccxtId']));
   },
   [types.ADD_TO_ARBITRAGE_HISTORY](state, args) {
     assert(args.arb, 'Arb is a required argument');
