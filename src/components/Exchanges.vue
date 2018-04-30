@@ -38,9 +38,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { mapGetters, mapActions } from 'vuex';
-import { wait } from '@/utils';
 
 export default {
   name: 'Home',

@@ -8,7 +8,6 @@
 <script>
 import Navbar from '@/components/Navbar';
 import Login from '@/components/Login';
-import { mapGetters } from 'vuex';
 
 export default {
   name: 'App',

@@ -10,7 +10,7 @@ const attempt = async (method, url, data) => {
   assert(typeof instance[method] === 'function');
   let attempted;
   try {
-    attempted = await instance({method, url, data, headers: accessHeader()});
+    attempted = await instance({ method, url, data, headers: accessHeader() });
   } catch (error) {
     if (error.response && error.response.status === 401) {
       store.commit(types.LOG_OUT);
@@ -22,7 +22,7 @@ const attempt = async (method, url, data) => {
 };
 
 export const authenticate = user => instance.post('/authenticate', user);
-export const fetchOrderCaddies = async () => attempt('get', `/caddies`);
+export const fetchOrderCaddies = async () => attempt('get', '/caddies');
 export const fetchOrderCaddy = async id => attempt('get', `/caddies/${id}`);
 export const fetchPairs = async () => (await instance.get('/pairs')).data;
 export const fetchExchanges = async () => attempt('get', '/exchanges');

@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     async deleteCaddy(caddy) {
-      const { success } = await deleteCaddy(caddy.id)
+      const { success } = await deleteCaddy(caddy.id);
       if (success) {
         const index = this.caddies.indexOf(caddy);
         this.caddies.splice(index, 1);
@@ -55,7 +55,7 @@ export default {
   },
   async beforeRouteEnter(to, from, next) {
     const caddies = await fetchOrderCaddies();
-    next(vm => {
+    next((vm) => {
       vm.caddies = caddies;
     });
   }

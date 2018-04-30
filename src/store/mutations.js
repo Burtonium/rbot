@@ -8,7 +8,7 @@ export default {
     state.exchanges = Object.assign({}, state.exchanges, keyBy(exchanges, 'ccxtId'));
   },
   [types.ASSIGN_EXCHANGE_STATE](state, args) {
-    Object.assign(state.exchanges[args.id], omit(args, ['id', 'ccxtId']));
+    Object.assign(state.exchanges[args.ccxtId], omit(args, ['id', 'ccxtId']));
   },
   [types.ADD_TO_ARBITRAGE_HISTORY](state, args) {
     assert(args.arb, 'Arb is a required argument');

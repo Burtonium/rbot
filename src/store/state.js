@@ -1,4 +1,3 @@
-import ccxt from 'ccxt';
 import { merge } from 'lodash';
 
 export const STORAGE_KEY = 'R-BOT-STORAGE';

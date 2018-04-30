@@ -2,7 +2,7 @@ import { pickBy } from 'lodash';
 
 export default {
   exchanges: state => state.exchanges,
-  filteredExchanges: state =>  state.exchanges && pickBy(state.exchanges, e => e.enabled),
+  filteredExchanges: state => state.exchanges && pickBy(state.exchanges, e => e.enabled),
   getExchangeState: state => id => state.exchanges[id],
   exchangeStates: state => state.exchanges,
   getExchangeIdList: state => Object.keys(state.exchanges),

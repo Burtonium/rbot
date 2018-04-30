@@ -28,7 +28,10 @@
     </div>
     <div class="form-group" v-if="exchange.requires.password">
       <label>Password</label>
-      <input class="input form-control" placeholder="Password" type="password" v-model.lazy="password">
+      <input class="input form-control"
+             placeholder="Password"
+             type="password"
+             v-model.lazy="password">
     </div>
     {{ exchange.orders }}
     <h3>Orders</h3>

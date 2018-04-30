@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import assert from 'assert';
-import * as types from './mutation_types';
 import { patchExchange, fetchExchanges } from '@/api';
+import * as types from './mutation_types';
 
 export default {
   clearStorage({ commit }) {
@@ -59,7 +59,6 @@ export default {
   },
   async patchExchange({ commit }, args) {
     const { success, exchange } = await patchExchange(args);
-    console.log(exchange);
     if (success) {
       commit(types.ASSIGN_EXCHANGE_STATE, exchange);
     }
