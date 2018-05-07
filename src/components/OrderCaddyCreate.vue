@@ -175,7 +175,16 @@ export default {
       }
     },
     async createCaddy() {
-      const { success, status } = await createCaddy(this.caddy);
+      const insert = {...this.caddy};
+      insert.referenceMarkets.forEach((m) => {
+        delete m.exchange;
+        delete m.pair;
+      });
+      insert.triggerMarkets.forEach((m) => {
+        delete m.exchange;
+        delete m.pair;
+      });
+      const { success, status } = await createCaddy(insert);
       if (!success && status === 401) {
         this.$router.push('/login');
       } else if (success) {
