@@ -24,7 +24,7 @@
             {{ ex.name }}
           </td>
           <td>
-            <p>{{ ex.status || 'Pending' }}</p>
+            <p>{{ ex.status || 'Pending' }} ({{ ex.latency }})</p>
           </td>
           <td>
             <router-link class="btn btn-primary" :to="'/exchanges/' + ex.ccxtId">
