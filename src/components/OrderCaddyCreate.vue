@@ -89,10 +89,9 @@
     </div>
   </div>
 </template>
-
 <script>
 import Checkmark from '@/components/Checkmark';
-import { fetchMarkets, createCaddy } from '@/api';
+import { fetchExchanges, createCaddy } from '@/api';
 import { flatten, sortedUniqBy, sortBy } from 'lodash';
 import { mapGetters } from 'vuex';
 
@@ -194,16 +193,9 @@ export default {
     }
   },
   async mounted() {
-    this.allMarkets = await fetchMarkets();
-    /*
-    this.allMarkets.forEach((m) => {
-      this.exchanges = this.$store.getters.exchanges;
-      const e =  this.exchanges.find(e => e.id == m.exchange_id);
-      if (e) {
-        m.exchange = e;
-      }
-    });
-    */
+    this.exchanges = (await fetchExchanges())
+      .filter(e => this.getFilteredExchangeIdList.includes(e.ccxtId));
+    this.allMarkets = flatten(this.exchanges.map(e => e.markets));
   }
 };
 </script>
