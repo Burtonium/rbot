@@ -89,9 +89,10 @@
     </div>
   </div>
 </template>
+
 <script>
 import Checkmark from '@/components/Checkmark';
-import { fetchExchanges, createCaddy } from '@/api';
+import { fetchMarkets, createCaddy } from '@/api';
 import { flatten, sortedUniqBy, sortBy } from 'lodash';
 import { mapGetters } from 'vuex';
 
@@ -193,9 +194,7 @@ export default {
     }
   },
   async mounted() {
-    this.exchanges = (await fetchExchanges())
-      .filter(e => this.getFilteredExchangeIdList.includes(e.ccxtId));
-    this.allMarkets = flatten(this.exchanges.map(e => e.markets));
+    this.allMarkets = await fetchMarkets();
   }
 };
 </script>
