@@ -93,7 +93,7 @@
 <script>
 import Checkmark from '@/components/Checkmark';
 import { fetchMarkets, createCaddy } from '@/api';
-import { flatten, sortedUniqBy, sortBy } from 'lodash';
+import { flatten, sortedUniqBy, sortBy, omit } from 'lodash';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -127,7 +127,7 @@ export default {
     market() {
       const market = this.allMarkets.find(m => m.id === this.market.value);
       if (market && !this.caddy.referenceMarkets.includes(market)) {
-        this.caddy.referenceMarkets.push(market);
+        this.caddy.referenceMarkets.push(omit(market, ['exchange', 'pair']));
       }
     }
   },
@@ -170,21 +170,16 @@ export default {
     addTrigger() {
       const trigger = this.allMarkets.find(m => m.id === this.trigger.value);
       if (trigger &&
-          !this.caddy.triggerMarkets.find(tm => tm.id === trigger.id && tm.side === this.side)) {
-        this.caddy.triggerMarkets.push({ ...trigger, side: this.side, amount: this.amount });
+          !this.caddy.triggerMarkets.find(tm => tm.id === trigger.id && tm.side === this.side)) { // TODO prettiefy this
+        this.caddy.triggerMarkets.push({
+          ...omit(trigger, ['exchange', 'pair']),
+          side: this.side,
+          amount: this.amount
+        });
       }
     },
     async createCaddy() {
-      const insert = {...this.caddy};
-      insert.referenceMarkets.forEach((m) => {
-        delete m.exchange;
-        delete m.pair;
-      });
-      insert.triggerMarkets.forEach((m) => {
-        delete m.exchange;
-        delete m.pair;
-      });
-      const { success, status } = await createCaddy(insert);
+      const { success, status } = await createCaddy(this.caddy);
       if (!success && status === 401) {
         this.$router.push('/login');
       } else if (success) {
