@@ -24,7 +24,8 @@
             {{ ex.name }}
           </td>
           <td>
-            <p>{{ ex.status || 'Pending' }} ({{ ex.latency }}ms)</p>
+            <span>{{ ex.status || 'Pending' }}</span>
+            <span v-if="ex.status == 'active'"> ({{ ex.latency }}ms)</span>
           </td>
           <td>
             <router-link class="btn btn-primary" :to="'/exchanges/' + ex.ccxtId">
@@ -46,7 +47,7 @@ export default {
     ...mapGetters([
       'exchanges',
       'filteredExchanges',
-    ])
+    ]),
   },
   methods: {
     ...mapActions(['patchExchange', 'fetchExchanges']),
