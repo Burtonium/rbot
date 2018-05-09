@@ -1,9 +1,16 @@
 <template>
   <div class="wrapper" v-if="caddy">
-    <h1>Caddy: {{ caddy.label }}</h1>
+    <h1 class="form-inline">Caddy:
+      <input class="form-control" v-model.lazy="caddy.label" v-on:change="update"/>
+    </h1>
+    <button @click="toggleActive" class="badge"
+      :class="{'badge-success': caddy.active, 'badge-danger': !caddy.active}">
+      {{ caddy.active ? "Active" : "Disabled" }}
+    </button>
     <br>
     <h4 class="form-inline">Min Profitability Margin:
-      <input class="form-control" v-model="caddy.minProfitabilityPercent"/>
+      <input class="form-control" v-model.lazy="caddy.minProfitabilityPercent"
+        v-on:change="update"/>
     </h4>
     <br>
     <h4>Reference Markets</h4>
@@ -76,7 +83,7 @@
   </div>
 </template>
 <script>
-import { fetchOrderCaddy } from '@/api';
+import { fetchOrderCaddy, patchCaddy } from '@/api';
 import { capitalize } from 'lodash';
 import { dateTimeString } from '@/utils';
 
@@ -99,7 +106,14 @@ export default {
   },
   methods: {
     capitalize,
-    dateTimeString
+    dateTimeString,
+    async update() {
+      this.caddy = (await patchCaddy(this.caddy)).caddy;
+    },
+    toggleActive() {
+      this.caddy.active = !this.caddy.active;
+      this.update();
+    }
   },
   async mounted() {
     this.caddy = await fetchOrderCaddy(this.$route.params.id);
