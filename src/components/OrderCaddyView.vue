@@ -3,7 +3,7 @@
     <h1 class="form-inline">Caddy:
       <input class="form-control" v-model.lazy="caddy.label" v-on:change="update"/>
     </h1>
-    <button @click="toggleActive" class="badge"
+    <button @click="toggleActive"
       :class="{'badge-success': caddy.active, 'badge-danger': !caddy.active}">
       {{ caddy.active ? "Active" : "Disabled" }}
     </button>
@@ -21,6 +21,7 @@
           <th>Bid</th>
           <th>Ask</th>
           <th>Last Updated</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +30,7 @@
           <td>{{ +market.tickers[0].bid }}</td>
           <td>{{ +market.tickers[0].ask }}</td>
           <td>{{ dateTimeString(market.tickers[0].timestamp) }}</td>
-          <button @click="removeReferenceMarket(index)">-</button>
+          <td><button @click="removeReferenceMarket(index)">-</button></td>
         </tr>
       </tbody>
     </table>
@@ -44,14 +45,24 @@
           <th>Exchange</th>
           <th>Side</th>
           <th>Amount</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(market, index) in triggerMarkets" :key="index">
           <td>{{ market.exchange.name }}</td>
-          <td>{{ market.side }}</td>
-          <td>{{ market.amount }}</td>
-          <button @click="removeTriggerMarket(index)">-</button>
+          <td>
+            <select v-model="market.side" class="form-control"
+              @change="update(caddy)">
+              <option value="buy">Buy</option>
+              <option value="sell">Sell</option>
+            </select>
+          </td>
+          <td>
+            <input class="form-control" v-model.lazy="market.amount" type="number"
+              @change="update(caddy)"/>
+          </td>
+          <td><button @click="removeTriggerMarket(index)">-</button></td>
         </tr>
       </tbody>
     </table>
@@ -63,7 +74,8 @@
           <option value="sell">Sell</option>
         </select>
         <span v-if="side" class="input-group">
-          <input class="form-control" v-model.lazy="amount" type="number"/>
+          <input class="form-control" v-model="amount" type="number"/>
+          <button v-if="amount>0" @click="addTriggerMarket">Add</button>
         </span>
       </div>
     </div>
@@ -80,7 +92,7 @@
       </thead>
       <tbody>
         <tr v-for="(order, index) in openTriggers" :key="index">
-          <td>{{ order.market.exchange.name }}</td>
+          <td>{{ order.market.exchange.name || 'Pending' }}</td>
           <td>{{ +order.amount }} </td>
           <td>{{ +order.limitPrice }} </td>
           <td>{{ dateTimeString(order.createdAt) }}</td>
@@ -104,7 +116,7 @@
           </thead>
           <tbody>
             <tr v-for="(order, index) in arb.orders" :key="index">
-              <td>{{ order.market.exchange.name }}</td>
+              <td>{{ order.market.exchange.name || 'Pending' }}</td>
               <td>{{ order.status }}</td>
               <td>{{ capitalize(order.type) }} {{ order.side }}</td>
               <td>{{ +order.amount }} </td>
@@ -131,16 +143,12 @@ export default {
       referenceMarket: null,
       triggerMarket: null,
       side: '',
-      amount: 0,
-      allMarkets: []
+      amount: 0
     };
   },
   watch: {
     referenceMarket() {
       this.addReferenceMarket();
-    },
-    amount() {
-      this.addTriggerMarket();
     }
   },
   computed: {
@@ -164,59 +172,64 @@ export default {
     },
     referenceMarketOptions() {
       return this.marketOptions.filter(m =>
-        !this.caddy.referenceMarkets.find(rm => m.value === rm.id));
+        !this.caddy.referenceMarkets.find(rm => rm.id === m.value));
     },
     triggerMarketOptions() {
-      return this.marketOptions;
+      return this.marketOptions.filter(m =>
+        !this.caddy.triggerMarkets.find(tm => tm.id === m.value));
     }
   },
   methods: {
     capitalize,
     dateTimeString,
-    async update() {
-      if (!(this.caddy.label.length
-          && this.caddy.referenceMarkets.length
-          && this.caddy.triggerMarkets.length)) {
-        this.caddy.active = false;
+    async update(caddyGraph) {
+      if (!(caddyGraph.label.length
+          && caddyGraph.referenceMarkets.length
+          && caddyGraph.triggerMarkets.length)) {
+        caddyGraph.active = false;
       }
-      this.caddy = (await patchCaddy(this.caddy)).caddy;
+      this.caddy = (await patchCaddy(caddyGraph)).caddy;
     },
-    async toggleActive() {
+    toggleActive() {
       this.caddy.active = !this.caddy.active;
-      await this.update();
+      this.update(this.caddy);
     },
-    async addReferenceMarket(){
+    addReferenceMarket() {
       const market = this.markets.find(m => m.id === this.referenceMarket.value);
       if (market) {
-        market.tickers = [{
-          ask: 0,
-          bid: 0
-        }];
-        
         if (!this.caddy.referenceMarkets.find(m => m.id === market.id)) {
-          this.caddy.referenceMarkets.push(market);
-          await this.update();
+          const upsert = { ...this.caddy };
+          // clone array
+          upsert.referenceMarkets = this.caddy.referenceMarkets.slice(0);
+          upsert.referenceMarkets.push(market);
+          this.update(upsert);
         }
       }
     },
-    async addTriggerMarket(){
+    addTriggerMarket() {
       const market = this.markets.find(m => m.id === this.triggerMarket.value);
-      this.caddy.triggerMarkets.push({
-        side: this.side,
-        amount: this.amount,
-        id: market.id
-      });
-      await this.update();
-      this.triggerMarket = null;
-      this.amount = 0;
+      if (market) {
+        const upsert = { ...this.caddy };
+        // clone array
+        upsert.triggerMarkets = this.caddy.triggerMarkets.slice(0);
+        upsert.triggerMarkets.push({
+          side: this.side,
+          amount: this.amount,
+          id: market.id,
+        });
+        this.triggerMarket = null;
+        this.side = '';
+        this.amount = 0;
+        this.update(upsert);
+      }
     },
     removeReferenceMarket(index) {
       this.caddy.referenceMarkets.splice(index, 1);
-      this.update();
+      this.update(this.caddy);
     },
     removeTriggerMarket(index) {
       this.caddy.triggerMarkets.splice(index, 1);
-      this.update();
+      this.update(this.caddy);
     }
   },
   async mounted() {
