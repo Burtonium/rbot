@@ -68,7 +68,7 @@
     </table>
     <div class="form-group form-inline">
       <v-select :options="triggerMarketOptions" v-model="triggerMarket"/>
-      <div v-if="triggerMarket">
+      <div v-if="triggerMarket" class="form-group form-inline">
         <select v-model="side" class="form-control">
           <option value="buy">Buy</option>
           <option value="sell">Sell</option>
