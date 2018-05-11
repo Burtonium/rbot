@@ -29,4 +29,5 @@ export const fetchExchanges = async () => attempt('get', '/exchanges');
 export const fetchMarkets = async () => attempt('get', '/markets');
 export const patchExchange = async exchange => attempt('patch', `/exchanges/${exchange.id || exchange.ccxtId}`, { exchange });
 export const createCaddy = async caddy => attempt('post', '/caddies', { caddy });
+export const patchCaddy = async caddy => attempt('patch', `/caddies/${caddy.id}`, { caddy });
 export const deleteCaddy = async id => attempt('delete', `/caddies/${id}`);
