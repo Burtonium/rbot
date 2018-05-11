@@ -28,7 +28,11 @@ class Exchange {
   }
 
   get enabled() {
-    return this.state.enabled;
+    let retVal = false;
+    if (this.state) {
+      retVal = this.state.enabled;
+    }
+    return retVal;
   }
 
   get state() {

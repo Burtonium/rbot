@@ -86,7 +86,6 @@
 </template>
 
 <script>
-import ExchangeManager from '@/models/ExchangeManager';
 import Order from '@/models/Order';
 import Arbitrage from '@/models/Arbitrage';
 import Spinner from '@/components/Spinner';
@@ -286,7 +285,7 @@ export default {
     }
   },
   async mounted() {
-    this.manager = new ExchangeManager();
+    this.manager = {}; // new ExchangeManager();
     this.status = 'Loading markets';
     await this.manager.loadMarkets();
     this.status = 'Fetching balances';

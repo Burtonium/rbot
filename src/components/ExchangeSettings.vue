@@ -84,7 +84,6 @@
 </div>
 </template>
 <script>
-import Exchange from '@/models/Exchange';
 import { capitalize } from 'lodash';
 import { dateTimeString } from '@/utils';
 
@@ -96,7 +95,7 @@ const mapExchangeSettings = (settings) => {
       set(value) {
         this.$store.dispatch('patchExchange', {
           [s]: value,
-          ccxtId: this.exchange.id
+          id: this.exchange.id
         });
       }
     };
@@ -107,7 +106,7 @@ const mapExchangeSettings = (settings) => {
 export default {
   data() {
     return {
-      exchange: new Exchange(this.$route.params.id),
+      exchange: {}, // new Exchange(this.$route.params.id),
       balances: null,
       error: null,
       quoteRate: null,

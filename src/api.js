@@ -27,7 +27,9 @@ export const fetchOrderCaddy = async id => attempt('get', `/caddies/${id}`);
 export const fetchPairs = async () => (await instance.get('/pairs')).data;
 export const fetchExchanges = async () => attempt('get', '/exchanges');
 export const fetchMarkets = async () => attempt('get', '/markets');
-export const patchExchange = async exchange => attempt('patch', `/exchanges/${exchange.id || exchange.ccxtId}`, { exchange });
+export const patchExchange = async exchange => attempt('patch',
+  `/exchanges/${exchange.id}`, { exchange });
 export const createCaddy = async caddy => attempt('post', '/caddies', { caddy });
-export const patchCaddy = async caddy => attempt('patch', `/caddies/${caddy.id}`, { caddy });
+export const patchCaddy = async caddy => attempt('patch', `/caddies/${caddy.id}`,
+  { caddy });
 export const deleteCaddy = async id => attempt('delete', `/caddies/${id}`);

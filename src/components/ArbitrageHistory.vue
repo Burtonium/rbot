@@ -57,18 +57,12 @@
   </div>
 </template>
 <script>
-import ExchangeManager from '@/models/ExchangeManager';
 import { mapGetters } from 'vuex';
 import { precisionRound } from '@/utils';
 import store from '@/store';
 import * as types from '@/store/mutation_types';
 
 export default {
-  data() {
-    return {
-      manager: new ExchangeManager()
-    };
-  },
   computed: {
     ...mapGetters(['arbHistory']),
     history() {

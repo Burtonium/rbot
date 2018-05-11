@@ -28,7 +28,7 @@
             <span v-if="ex.status == 'active'"> ({{ ex.latency }}ms)</span>
           </td>
           <td>
-            <router-link class="btn btn-primary" :to="'/exchanges/' + ex.ccxtId">
+            <router-link class="btn btn-primary" :to="'/exchanges/' + ex.id">
               Settings
             </router-link>
           </td>
