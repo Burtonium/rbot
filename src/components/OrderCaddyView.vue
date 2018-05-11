@@ -199,7 +199,6 @@ export default {
       if (market) {
         if (!this.caddy.referenceMarkets.find(m => m.id === market.id)) {
           const upsert = { ...this.caddy };
-          // clone array
           upsert.referenceMarkets = this.caddy.referenceMarkets.slice(0);
           upsert.referenceMarkets.push(market);
           this.update(upsert);
@@ -210,7 +209,6 @@ export default {
       const market = this.markets.find(m => m.id === this.triggerMarket.value);
       if (market) {
         const upsert = { ...this.caddy };
-        // clone array
         upsert.triggerMarkets = this.caddy.triggerMarkets.slice(0);
         upsert.triggerMarkets.push({
           side: this.side,
