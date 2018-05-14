@@ -86,7 +86,6 @@
 </template>
 
 <script>
-import ExchangeManager from '@/models/ExchangeManager';
 import Order from '@/models/Order';
 import Arbitrage from '@/models/Arbitrage';
 import Spinner from '@/components/Spinner';
@@ -102,6 +101,7 @@ import { sortedIndexBy, keyBy, sortBy } from 'lodash';
 import { precisionRound, wait, toWords } from '@/utils';
 import * as types from '@/store/mutation_types';
 import { mapGetters, mapMutations } from 'vuex';
+import { fetchBalances } from '@/api';
 
 export default {
   data() {
@@ -119,6 +119,9 @@ export default {
   },
   computed: {
     ...mapGetters(['arbHistory', 'filters', 'settings']),
+    exchanges() {
+      return this.$store.state.exchanges;
+    },
     refreshMode() {
       return this.settings.refreshMode;
     },
@@ -202,11 +205,9 @@ export default {
       });
     },
     fetchBalances() {
-      this.manager.enabledExchanges.filter(e => e.ccxt.has.fetchBalance)
-        .forEach(async (e) => {
-          await e.fetchBalances();
-          this.balances[e.id] = keyBy(Object.values(e.balances), b => b.code);
-        });
+     this.exchanges.forEach(async (e) => {
+       e.balances = await fetchBalances(e.id);
+     });
     },
     async updateArbs() {
       const updates = this.arbs.map(a => a.update());
@@ -286,7 +287,7 @@ export default {
     }
   },
   async mounted() {
-    this.manager = new ExchangeManager();
+    this.manager = {}; // new ExchangeManager();
     this.status = 'Loading markets';
     await this.manager.loadMarkets();
     this.status = 'Fetching balances';

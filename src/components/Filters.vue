@@ -50,7 +50,6 @@ import { mapGetters, mapMutations, mapActions } from 'vuex';
 import assert from 'assert';
 import * as types from '@/store/mutation_types';
 import ListFilter from '@/components/ListFilter';
-import Exchange from '@/models/Exchange';
 
 export default {
   data() {
@@ -59,18 +58,6 @@ export default {
       exchangeSelector: null,
       exchange: null
     };
-  },
-  watch: {
-    exchangeSelector() {
-      if (!this.exchangeSelector) {
-        return;
-      }
-      const id = this.exchangeSelector.value;
-      this.exchange = id ? new Exchange(id) : null;
-      if (this.exchange) {
-        this.exchange.ccxt.loadMarkets().then(() => { this.$forceUpdate(); });
-      }
-    }
   },
   computed: {
     ...mapGetters(['filters', 'currencies', 'getFilteredExchangeStates']),

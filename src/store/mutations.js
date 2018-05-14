@@ -5,10 +5,10 @@ import * as types from './mutation_types';
 
 export default {
   [types.SET_EXCHANGES](state, exchanges) {
-    state.exchanges = Object.assign({}, state.exchanges, keyBy(exchanges, 'ccxtId'));
+    state.exchanges = Object.assign({}, state.exchanges, keyBy(exchanges, 'id'));
   },
   [types.ASSIGN_EXCHANGE_STATE](state, args) {
-    Object.assign(state.exchanges[args.ccxtId], omit(args, ['id', 'ccxtId']));
+    Object.assign(state.exchanges[args.id], omit(args, ['id']));
   },
   [types.ADD_TO_ARBITRAGE_HISTORY](state, args) {
     assert(args.arb, 'Arb is a required argument');

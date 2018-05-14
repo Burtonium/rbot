@@ -201,7 +201,7 @@ class Order {
   }
 
   async fetchOrderInfo() {
-    // assert(this.id, 'Order id is required');
+    assert(this.id, 'Order id is required');
     assert(this.exchange, 'Exchange instance is required');
 
     let trades = [];
