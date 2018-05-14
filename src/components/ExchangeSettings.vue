@@ -13,7 +13,7 @@
     <div class="form-group"  v-if="exchange.requires.apiKey">
       <label>API key</label>
       <input class="input form-control" placeholder="API Key"
-             v-model.lazy="key">
+             v-model.lazy="apiKey">
     </div>
     <div class="form-group" v-if="exchange.requires.secret">
       <label>Secret</label>
@@ -142,7 +142,7 @@ export default {
     },
   },
   computed: {
-    ...mapExchangeSettings(['tradingFeePercent', 'enabled', 'key', 'secret', 'uid', 'password']),
+    ...mapExchangeSettings(['tradingFeePercent', 'enabled', 'apiKey', 'secret', 'uid', 'password']),
     exchangeId() {
       return this.$route.params.id;
     },
@@ -150,9 +150,9 @@ export default {
       return this.$store.state.exchanges[this.exchangeId] || pendingExchange;
     }
   },
-  async mounted() {
-    await this.$store.dispatch('fetchExchanges');
-    await this.$forceUpdate();
+  mounted() {
+    this.$store.dispatch('fetchExchanges');
+    this.$forceUpdate();
   }
 };
 </script>

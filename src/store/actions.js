@@ -55,6 +55,9 @@ export default {
   },
   async fetchExchanges({ commit }) {
     const exchanges = await fetchExchanges();
+    
+    console.log("Exchanges: ", exchanges);
+    
     commit(types.SET_EXCHANGES, exchanges);
   },
   async patchExchange({ commit }, args) {

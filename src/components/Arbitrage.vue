@@ -101,6 +101,7 @@ import { sortedIndexBy, keyBy, sortBy } from 'lodash';
 import { precisionRound, wait, toWords } from '@/utils';
 import * as types from '@/store/mutation_types';
 import { mapGetters, mapMutations } from 'vuex';
+import { fetchBalances } from '@/api';
 
 export default {
   data() {
@@ -118,6 +119,9 @@ export default {
   },
   computed: {
     ...mapGetters(['arbHistory', 'filters', 'settings']),
+    exchanges() {
+      return this.$store.state.exchanges;
+    },
     refreshMode() {
       return this.settings.refreshMode;
     },
@@ -201,7 +205,9 @@ export default {
       });
     },
     fetchBalances() {
-      // TODO use api to fetch balances
+     this.exchanges.forEach(async (e) => {
+       e.balances = await fetchBalances(e.id);
+     });
     },
     async updateArbs() {
       const updates = this.arbs.map(a => a.update());
