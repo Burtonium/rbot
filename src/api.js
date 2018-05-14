@@ -33,3 +33,4 @@ export const createCaddy = async caddy => attempt('post', '/caddies', { caddy })
 export const patchCaddy = async caddy => attempt('patch', `/caddies/${caddy.id}`,
   { caddy });
 export const deleteCaddy = async id => attempt('delete', `/caddies/${id}`);
+export const fetchBalances = async id => attempt('get', `/exchanges/${id}/balances`);
