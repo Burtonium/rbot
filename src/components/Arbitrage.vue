@@ -201,11 +201,7 @@ export default {
       });
     },
     fetchBalances() {
-      this.manager.enabledExchanges.filter(e => e.ccxt.has.fetchBalance)
-        .forEach(async (e) => {
-          await e.fetchBalances();
-          this.balances[e.id] = keyBy(Object.values(e.balances), b => b.code);
-        });
+      // TODO use api to fetch balances
     },
     async updateArbs() {
       const updates = this.arbs.map(a => a.update());
