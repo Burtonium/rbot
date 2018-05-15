@@ -84,19 +84,32 @@
 </div>
 </template>
 <script>
-import Exchange from '@/models/Exchange';
 import { capitalize } from 'lodash';
 import { dateTimeString } from '@/utils';
+import { fetchBalances } from '@/api';
+
+const pendingExchange = {
+  name: 'Pending',
+  enabled: false,
+  requires: {
+    apiKey: false,
+    secret: false,
+    uid: false,
+    password: false,
+  },
+};
 
 const mapExchangeSettings = (settings) => {
   const res = {};
   settings.forEach((s) => {
     res[s] = {
-      get() { return this.$store.state.exchanges[this.exchange.id][s]; },
+      get() {
+        return (this.$store.state.exchanges[this.exchangeId] || pendingExchange)[s];
+      },
       set(value) {
         this.$store.dispatch('patchExchange', {
           [s]: value,
-          ccxtId: this.exchange.id
+          id: this.exchangeId
         });
       }
     };
@@ -107,7 +120,6 @@ const mapExchangeSettings = (settings) => {
 export default {
   data() {
     return {
-      exchange: new Exchange(this.$route.params.id),
       balances: null,
       error: null,
       quoteRate: null,
@@ -122,17 +134,24 @@ export default {
       return { base: match[1], quote: match[2] };
     },
     async fetchBalances() {
-      const e = this.exchange;
-      this.balances = await e.fetchBalances();
-      this.error = e.error ? e.error.message : null;
+      const result = fetchBalances(this.exchangeId);
+      this.error = !result.success;
+      if (result.success) {
+        this.balances = result.balances;
+      }
     },
   },
   computed: {
-    ...mapExchangeSettings(['tradingFeePercent', 'enabled', 'apiKey', 'secret', 'uid', 'password'])
+    ...mapExchangeSettings(['tradingFeePercent', 'enabled', 'apiKey', 'secret', 'uid', 'password']),
+    exchangeId() {
+      return this.$route.params.id;
+    },
+    exchange() {
+      return this.$store.state.exchanges[this.exchangeId] || pendingExchange;
+    }
   },
-  async mounted() {
-    this.exchange.verbose = true;
-    this.balances = await this.exchange.fetchBalances();
+  mounted() {
+    this.$store.dispatch('fetchExchanges');
     this.$forceUpdate();
   }
 };

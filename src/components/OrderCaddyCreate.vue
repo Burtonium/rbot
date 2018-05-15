@@ -39,7 +39,7 @@
                 @mouseover="hover = market"
                 @mouseout="hover = null"
                 @click="removeReference(market)">
-            {{ market.exchange.name }}
+            {{ market.exchangeName || 'unknown exchange name'}}
           </span>
         </h5>
         <div v-if="caddy.referenceMarkets.length > 0">
@@ -75,7 +75,7 @@
                   @mouseover="hover2 = market"
                   @mouseout="hover2 = null"
                   @click="removeTrigger(market)">
-              {{ market.exchange.name }} {{ market.side }}
+              {{ market.exchangeName  || 'unknown exchange name'}} {{ market.side }}
             </span>
           </h5>
           <br>
@@ -93,7 +93,7 @@
 <script>
 import Checkmark from '@/components/Checkmark';
 import { fetchMarkets, createCaddy } from '@/api';
-import { flatten, sortedUniqBy, sortBy, omit } from 'lodash';
+import { sortedUniqBy, sortBy, omit } from 'lodash';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -123,11 +123,15 @@ export default {
     pair() {
       this.caddy.referenceMarkets = [];
       this.caddy.triggerMarkets = [];
+      this.caddy.currencyPairId = this.pair.value;
     },
     market() {
       const market = this.allMarkets.find(m => m.id === this.market.value);
       if (market && !this.caddy.referenceMarkets.includes(market)) {
-        this.caddy.referenceMarkets.push(omit(market, ['exchange', 'pair']));
+        this.caddy.referenceMarkets.push({
+          ...omit(market, ['exchange', 'pair']),
+          exchangeName: market.exchange.name
+        });
       }
     }
   },
@@ -170,11 +174,13 @@ export default {
     addTrigger() {
       const trigger = this.allMarkets.find(m => m.id === this.trigger.value);
       if (trigger &&
-          !this.caddy.triggerMarkets.find(tm => tm.id === trigger.id && tm.side === this.side)) { // TODO prettiefy this
+          !this.caddy.triggerMarkets.find(tm => tm.id === trigger.id
+            && tm.side === this.side)) { // TODO prettiefy this
         this.caddy.triggerMarkets.push({
           ...omit(trigger, ['exchange', 'pair']),
           side: this.side,
-          amount: this.amount
+          amount: this.amount,
+          exchangeName: trigger.exchange.name
         });
       }
     },
