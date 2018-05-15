@@ -71,7 +71,7 @@
         <tbody>
           <tr v-for="(balance, index) in balances" :key="index">
             <td>{{ balance.code }}</td>
-            <td>{{ balance.available }}</td>
+            <td>{{ balance.free }}</td>
             <td>{{ balance.total }}</td>
           </tr>
         </tbody>
@@ -134,10 +134,18 @@ export default {
       return { base: match[1], quote: match[2] };
     },
     async fetchBalances() {
-      const result = fetchBalances(this.exchangeId);
+      const result = await fetchBalances(this.exchangeId);
       this.error = !result.success;
       if (result.success) {
-        this.balances = result.balances;
+        this.balances = [];
+        Object.keys(result.balances.free).forEach((currency) => {
+          this.balances.push({
+            code: currency,
+            free: result.balances.free[currency],
+            used: result.balances.used[currency],
+            total:  result.balances.free[currency] + result.balances.used[currency]
+          });
+        });
       }
     },
   },
