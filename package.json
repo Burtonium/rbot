@@ -5,12 +5,13 @@
   "author": "Matt Burton <madeofburtonium@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js  --host 0.0.0.0",
     "start": "npm run dev",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "deploy": "npm run build && rsync -avz -e 'ssh' ./dist rbot@rbot.nephelo.co:/home/rbot/client"
   },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.4",
